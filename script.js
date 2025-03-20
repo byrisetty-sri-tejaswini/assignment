@@ -65,14 +65,14 @@ function addOption(questionId, type) {
         if (type === "multiple-choice") {
             newOption.innerHTML = `
                 <div class="option-content">
-                    <input type="radio" name="mc-${questionId}"> ${newOptionText}
+                    <span><input type="radio" name="mc-${questionId}"> ${newOptionText}</span>
                     <button class="delete-option" onclick="this.parentElement.parentElement.remove()">✕</button>
                 </div>`;
         }
         else if (type === "checkbox") {
             newOption.innerHTML = `
                 <div class="option-content">
-                    <input type="checkbox"> ${newOptionText}
+                    <span><input type="checkbox"> ${newOptionText}</span>
                     <button class="delete-option" onclick="this.parentElement.parentElement.remove()">✕</button>
                 </div>`;
         }
@@ -80,7 +80,9 @@ function addOption(questionId, type) {
             let selectElement = document.querySelector(`#question-options-${questionId} select`);
             if (!selectElement) {
                 let newSelect = document.createElement("select");
-                newSelect.innerHTML = `<option>${newOptionText}</option>`;
+                newSelect.innerHTML = `
+                    <option value="" disabled selected>Select an option</option>
+                    <option>${newOptionText}</option>`;
                 optionsList.appendChild(newSelect);
             } else {
                 let newDropdownOption = document.createElement("option");
@@ -89,7 +91,7 @@ function addOption(questionId, type) {
             }
             newOption.innerHTML = `
                 <div class="option-content">
-                    ${newOptionText}
+                    <span>${newOptionText}</span>
                     <button class="delete-option" onclick="this.parentElement.parentElement.remove()">✕</button>
                 </div>`;
         }
@@ -115,9 +117,11 @@ function saveFormData() {
 
         const optionsList = document.getElementById(`options-list-${container.id.split('-')[1]}`);
         if (optionsList) {
-            const optionElements = optionsList.querySelectorAll('div');
+            const optionElements = optionsList.querySelectorAll('.option-content span');
             optionElements.forEach(option => {
-                options.push(option.textContent.trim());
+                // Extract only the text content, removing the radio/checkbox HTML
+                const optionText = option.textContent.trim();
+                if (optionText) options.push(optionText);
             });
         }
 
@@ -167,7 +171,6 @@ window.onload = loadFormData;
 
 
 function previewbtn() {
-    // Temporarily store form data for preview without saving
     const formData = [];
     const questionContainers = document.querySelectorAll('.question-container');
 
@@ -178,9 +181,12 @@ function previewbtn() {
 
         const optionsList = document.getElementById(`options-list-${container.id.split('-')[1]}`);
         if (optionsList) {
-            const optionElements = optionsList.querySelectorAll('div');
+            // Update to only get the text content from span elements
+            const optionElements = optionsList.querySelectorAll('.option-content span');
             optionElements.forEach(option => {
-                options.push(option.textContent.trim());
+                // Remove the input element text content
+                const optionText = option.textContent.replace(/^(radio|checkbox)\s*/, '').trim();
+                if (optionText) options.push(optionText);
             });
         }
 

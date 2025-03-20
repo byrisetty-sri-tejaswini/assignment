@@ -61,11 +61,13 @@
                         });
                         break;
                     case "dropdown":
-                        questionDiv.innerHTML += `<select class="answer-input" data-question-index="${index}">`;
-                        question.options.forEach(option => {
-                            questionDiv.innerHTML += `<option value="${option}" ${savedAnswers[index] === option ? 'selected' : ''}>${option}</option>`;
-                        });
-                        questionDiv.innerHTML += `</select><br>`;
+                        questionDiv.innerHTML += `
+                            <select class="answer-input" data-question-index="${index}">
+                                <option value="" disabled ${!savedAnswers[index] ? 'selected' : ''}>-- Select an option --</option>
+                                ${question.options.map(option => 
+                                    `<option value="${option}" ${savedAnswers[index] === option ? 'selected' : ''}>${option}</option>`
+                                ).join('')}
+                            </select><br>`;
                         break;
                     case "date":
                         questionDiv.innerHTML += `<input type="date" value="${savedAnswers[index] || ''}" class="answer-input" data-question-index="${index}"><br>`;
