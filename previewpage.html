@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Preview</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="preview-container">
+        <h2>Form Preview</h2>
+        <div id="preview-questions"></div>
+        <button onclick="submitAnswers()">Submit Answers</button>
+        <button onclick="goBack()">Go Back</button>
+    </div>
+    <script>
+        function displayPreview() {
+            const formData = JSON.parse(sessionStorage.getItem("formData"));
+            const previewQuestions = document.getElementById("preview-questions");
+
+            formData.forEach((question, index) => {
+                const questionDiv = document.createElement("div");
+                questionDiv.className = "preview-question";
+                questionDiv.innerHTML = `<strong>Question ${index + 1}:</strong> ${question.questionText}<br>`;
+
+                switch (question.questionType) {
+                    case "short-answer":
+                        questionDiv.innerHTML += `<input type="text" placeholder="Your answer here" class="answer-input" data-question-index="${index}"><br>`;
+                        break;
+                    case "paragraph":
+                        questionDiv.innerHTML += `<textarea placeholder="Your answer here" class="answer-input" data-question-index="${index}"></textarea><br>`;
+                        break;
+                    case "multiple-choice":
+                        questionDiv.innerHTML += `<strong>Options:</strong><br>`;
+                        question.options.forEach(option => {
+                            questionDiv.innerHTML += `
+                                <label>
+                                    <input type="radio" name="mc-${index}" value="${option}" class="answer-input" data-question-index="${index}">
+                                    ${option}
+                                </label><br>
+                            `;
+                        });
+                        break;
+                    case "checkbox":
+                        questionDiv.innerHTML += `<strong>Options:</strong><br>`;
+                        question.options.forEach(option => {
+                            questionDiv.innerHTML += `
+                                <label>
+                                    <input type="checkbox" value="${option}" class="answer-input" data-question-index="${index}">
+                                    ${option}
+                                </label><br>
+                            `;
+                        });
+                        break;
+                    case "dropdown":
+                        questionDiv.innerHTML += `<select class="answer-input" data-question-index="${index}">`;
+                        question.options.forEach(option => {
+                            questionDiv.innerHTML += `<option value="${option}">${option}</option>`;
+                        });
+                        questionDiv.innerHTML += `</select><br>`;
+                        break;
+                    case "date":
+                        questionDiv.innerHTML += `<input type="date" class="answer-input" data-question-index="${index}"><br>`;
+                        break;
+                }
+
+                previewQuestions.appendChild(questionDiv);
+            });
+        }
+
+        function submitAnswers() {
+            const answers = [];
+            const answerInputs = document.querySelectorAll('.answer-input');
+
+            answerInputs.forEach(input => {
+                const questionIndex = input.getAttribute('data-question-index');
+                if (input.type === 'radio' && input.checked) {
+                    answers[questionIndex] = input.value;
+                } else if (input.type === 'checkbox') {
+                    if (!answers[questionIndex]) {
+                        answers[questionIndex] = [];
+                    if (input.checked) {
+                        answers[questionIndex].push(input.value);
+                    }
+                } else {
+                    answers[questionIndex] = input.value;
+                }
+            }
+        });
+
+            console.log('Submitted Answers:', answers);
+            // Handle the submission of answers, e.g., send to server or save to sessionStorage
+        }
+
+        function goBack() {
+            window.history.back();
+        }
+
+        window.onload = displayPreview;
+    </script>
+</body>
+</html>

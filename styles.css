@@ -1,0 +1,18 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #fff;
+    padding: 20px;
+}
+.question {
+    margin-bottom: 20px;
+}
+.question h3 {
+    margin: 0 0 10px 0;
+}
+.options {
+    list-style-type: none;
+    padding: 0;
+}
+.options li {
+    margin-bottom: 5px;
+}

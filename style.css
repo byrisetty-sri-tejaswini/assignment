@@ -1,0 +1,127 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    flex-direction: column;
+}
+ 
+/* Form Container */
+.form-container {
+    background: white;
+    padding: 2%;
+    width: 50%;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    scrollbar-width: none;
+    overflow-y: auto;
+}
+ 
+/* Headings */
+h2 {
+    text-align: center;
+    color: #333;
+}
+ 
+/* Form Group */
+.question-container {
+    background: #f1f1f1;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    position: relative;
+}
+ 
+#question{
+    width:40%;
+}
+
+#questionType{
+    width:40%;
+}
+
+
+select, textarea{
+    width: 95%;
+    padding: 2%;
+    margin-top: 1%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    outline: none;
+}
+
+/* Input, Select, Textarea */
+input {
+    width: 10%;
+    padding: 2%;
+    margin-top: 1%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    outline: none;
+}
+ 
+/* Buttons */
+button {
+    margin-top: 8px;
+    padding: 8px 12px;
+    border: none;
+    background-color: #4285F4;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+}
+ 
+button:hover {
+    background-color: #357ae8;
+}
+ 
+.delete-btn {
+    background-color: red;
+    position: absolute;
+    top: 20px;
+    right: 1%;
+}
+ 
+.add-option-btn {
+    background-color: green;
+}
+
+.buttons{
+    font-size: 16px;
+    margin-top: 15px;
+    text-align: center;
+    
+}
+
+.btn{
+    display: flex;
+    flex-direction: row;
+}
+
+.submit-btn {
+    width: 50%;
+    height:10%;
+    text-align: center;
+    margin-left:2%;
+}
+
+.preview{
+    width: 10%;
+    text-align: center;
+    margin-left: 90%;
+}
+ 
+.add-question-btn {
+    width: 50%;
+    height: 10%;
+    background-color: #34a853;
+}
+
+/* .delete-btn,
+#questionType,
+.add-option-btn {
+    visibility: hidden;
+} */
