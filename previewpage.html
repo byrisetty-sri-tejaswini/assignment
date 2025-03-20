@@ -15,9 +15,17 @@
     </div>
     <script>
         function displayPreview() {
-            const formData = JSON.parse(sessionStorage.getItem("formData"));
+            const formData = JSON.parse(sessionStorage.getItem("previewData")) || JSON.parse(sessionStorage.getItem("formData"));
+            const savedAnswers = JSON.parse(sessionStorage.getItem("formAnswers")) || [];
             const previewQuestions = document.getElementById("preview-questions");
+            
+            if (!formData || formData.length === 0) {
+                previewQuestions.innerHTML = "<p>No form data available.</p>";
+                return;
+            }
 
+            previewQuestions.innerHTML = "";
+            
             formData.forEach((question, index) => {
                 const questionDiv = document.createElement("div");
                 questionDiv.className = "preview-question";
@@ -25,17 +33,17 @@
 
                 switch (question.questionType) {
                     case "short-answer":
-                        questionDiv.innerHTML += `<input type="text" placeholder="Your answer here" class="answer-input" data-question-index="${index}"><br>`;
+                        questionDiv.innerHTML += `<input type="text" value="${savedAnswers[index] || ''}" placeholder="Your answer here" class="answer-input" data-question-index="${index}"><br>`;
                         break;
                     case "paragraph":
-                        questionDiv.innerHTML += `<textarea placeholder="Your answer here" class="answer-input" data-question-index="${index}"></textarea><br>`;
+                        questionDiv.innerHTML += `<textarea placeholder="Your answer here" class="answer-input" data-question-index="${index}">${savedAnswers[index] || ''}</textarea><br>`;
                         break;
                     case "multiple-choice":
                         questionDiv.innerHTML += `<strong>Options:</strong><br>`;
                         question.options.forEach(option => {
                             questionDiv.innerHTML += `
                                 <label>
-                                    <input type="radio" name="mc-${index}" value="${option}" class="answer-input" data-question-index="${index}">
+                                    <input type="radio" name="mc-${index}" value="${option}" class="answer-input" data-question-index="${index}" ${savedAnswers[index] === option ? 'checked' : ''}>
                                     ${option}
                                 </label><br>
                             `;
@@ -46,7 +54,7 @@
                         question.options.forEach(option => {
                             questionDiv.innerHTML += `
                                 <label>
-                                    <input type="checkbox" value="${option}" class="answer-input" data-question-index="${index}">
+                                    <input type="checkbox" value="${option}" class="answer-input" data-question-index="${index}" ${savedAnswers[index] && savedAnswers[index].includes(option) ? 'checked' : ''}>
                                     ${option}
                                 </label><br>
                             `;
@@ -55,12 +63,12 @@
                     case "dropdown":
                         questionDiv.innerHTML += `<select class="answer-input" data-question-index="${index}">`;
                         question.options.forEach(option => {
-                            questionDiv.innerHTML += `<option value="${option}">${option}</option>`;
+                            questionDiv.innerHTML += `<option value="${option}" ${savedAnswers[index] === option ? 'selected' : ''}>${option}</option>`;
                         });
                         questionDiv.innerHTML += `</select><br>`;
                         break;
                     case "date":
-                        questionDiv.innerHTML += `<input type="date" class="answer-input" data-question-index="${index}"><br>`;
+                        questionDiv.innerHTML += `<input type="date" value="${savedAnswers[index] || ''}" class="answer-input" data-question-index="${index}"><br>`;
                         break;
                 }
 
@@ -71,25 +79,21 @@
         function submitAnswers() {
             const answers = [];
             const answerInputs = document.querySelectorAll('.answer-input');
-
+        
             answerInputs.forEach(input => {
                 const questionIndex = input.getAttribute('data-question-index');
                 if (input.type === 'radio' && input.checked) {
                     answers[questionIndex] = input.value;
                 } else if (input.type === 'checkbox') {
-                    if (!answers[questionIndex]) {
-                        answers[questionIndex] = [];
-                    if (input.checked) {
-                        answers[questionIndex].push(input.value);
-                    }
+                    if (!answers[questionIndex]) answers[questionIndex] = [];
+                    if (input.checked) answers[questionIndex].push(input.value);
                 } else {
                     answers[questionIndex] = input.value;
                 }
-            }
-        });
+            });
 
-            console.log('Submitted Answers:', answers);
-            // Handle the submission of answers, e.g., send to server or save to sessionStorage
+            sessionStorage.setItem("formAnswers", JSON.stringify(answers));
+            alert("Answers saved successfully!");
         }
 
         function goBack() {

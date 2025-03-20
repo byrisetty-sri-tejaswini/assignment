@@ -60,12 +60,21 @@ function addOption(questionId, type) {
     if (newOptionText !== "") {
         let optionsList = document.getElementById(`options-list-${questionId}`);
         let newOption = document.createElement("div");
+        newOption.className = "option-item";
 
         if (type === "multiple-choice") {
-            newOption.innerHTML = `<input type="radio" name="mc-${questionId}"> ${newOptionText}`;
+            newOption.innerHTML = `
+                <div class="option-content">
+                    <input type="radio" name="mc-${questionId}"> ${newOptionText}
+                    <button class="delete-option" onclick="this.parentElement.parentElement.remove()">✕</button>
+                </div>`;
         }
         else if (type === "checkbox") {
-            newOption.innerHTML = `<input type="checkbox"> ${newOptionText}`;
+            newOption.innerHTML = `
+                <div class="option-content">
+                    <input type="checkbox"> ${newOptionText}
+                    <button class="delete-option" onclick="this.parentElement.parentElement.remove()">✕</button>
+                </div>`;
         }
         else if (type === "dropdown") {
             let selectElement = document.querySelector(`#question-options-${questionId} select`);
@@ -78,11 +87,15 @@ function addOption(questionId, type) {
                 newDropdownOption.textContent = newOptionText;
                 selectElement.appendChild(newDropdownOption);
             }
+            newOption.innerHTML = `
+                <div class="option-content">
+                    ${newOptionText}
+                    <button class="delete-option" onclick="this.parentElement.parentElement.remove()">✕</button>
+                </div>`;
         }
 
         optionsList.appendChild(newOption);
         document.getElementById(`new-option-${questionId}`).value = "";
-        
     }
 }
 
@@ -92,48 +105,55 @@ function deleteQuestion(questionId) {
 }
 
 function saveFormData() {
-    const formData = {};
+    const formData = [];
     const questionContainers = document.querySelectorAll('.question-container');
 
     questionContainers.forEach(container => {
-        const questionText = container.querySelector('.question-input'). value;
+        const questionText = container.querySelector('.question-input').value;
         const questionType = container.querySelector('#questionType').value;
-        formData[container.id] = {
-            questionText: questionText,
-            questionType: questionType,
-            options: []
-        };
+        const options = [];
 
         const optionsList = document.getElementById(`options-list-${container.id.split('-')[1]}`);
         if (optionsList) {
-            const options = optionsList.querySelectorAll('div');
-            options.forEach(option => {
-                formData[container.id].options.push(option.textContent.trim());
+            const optionElements = optionsList.querySelectorAll('div');
+            optionElements.forEach(option => {
+                options.push(option.textContent.trim());
             });
         }
+
+        formData.push({
+            questionText: questionText,
+            questionType: questionType,
+            options: options
+        });
     });
 
-    localStorage.setItem("formData", JSON.stringify(formData)); // Store data in localStorage
+    sessionStorage.setItem("formData", JSON.stringify(formData));
+    alert("Form saved successfully!");
 }
 
+// Remove auto-save event listener
 // Function to Load Form Data
 function loadFormData() {
-    const savedData = localStorage.getItem("formData");
+    const savedData = sessionStorage.getItem("formData");
     if (savedData) {
         const formData = JSON.parse(savedData);
-        for (const id in formData) {
-            const container = document.getElementById(id);
-            if (container) {
-                container.querySelector('.question-input').value = formData[id].questionText;
-                container.querySelector('#questionType').value = formData[id].questionType;
-                changeQuestionType(container.querySelector('#questionType'), id.split('-')[1]);
-                formData[id].options.forEach(option => {
-                    const newOptionInput = document.getElementById(`new-option-${id.split('-')[1]}`);
-                    newOptionInput.value = option; // Set the option text
-                    addOption(id.split('-')[1], formData[id].questionType); // Add the option to the list
+        formData.forEach((question, index) => {
+            addQuestion();
+            const container = document.getElementById(`question-${questionCount}`);
+            container.querySelector('.question-input').value = question.questionText;
+            container.querySelector('#questionType').value = question.questionType;
+            
+            changeQuestionType(container.querySelector('#questionType'), questionCount);
+            
+            if (question.options.length > 0) {
+                const newOptionInput = document.getElementById(`new-option-${questionCount}`);
+                question.options.forEach(option => {
+                    newOptionInput.value = option;
+                    addOption(questionCount, question.questionType);
                 });
             }
-        }
+        });
     }
 }
 
@@ -147,7 +167,7 @@ window.onload = loadFormData;
 
 
 function previewbtn() {
-    saveFormData();
+    // Temporarily store form data for preview without saving
     const formData = [];
     const questionContainers = document.querySelectorAll('.question-container');
 
@@ -156,13 +176,11 @@ function previewbtn() {
         const questionType = container.querySelector('#questionType').value;
         const options = [];
 
-        const optionsContainer = container.querySelector(`#question-options-${container.id.split('-')[1]}`);
-        if (questionType === "multiple-choice" || questionType === "checkbox" || questionType === "dropdown") {
-            const optionElements = optionsContainer.querySelectorAll('input[type="radio"], input[type="checkbox"]');
+        const optionsList = document.getElementById(`options-list-${container.id.split('-')[1]}`);
+        if (optionsList) {
+            const optionElements = optionsList.querySelectorAll('div');
             optionElements.forEach(option => {
-                if (option.nextSibling.textContent.trim() !== "") {
-                    options.push(option.nextSibling.textContent.trim());
-                }
+                options.push(option.textContent.trim());
             });
         }
 
@@ -173,6 +191,6 @@ function previewbtn() {
         });
     });
 
-    sessionStorage.setItem("formData", JSON.stringify(formData));
-    window.location.href = "previewpage.html"; // Redirect to the preview page
+    sessionStorage.setItem("previewData", JSON.stringify(formData));
+    window.location.href = "previewpage.html";
 }
